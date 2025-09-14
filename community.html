@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Community</title>
+  <link rel="stylesheet" href="community.css">
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+  <!-- Floating bubbles -->
+  <div class="bubbles">
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+  </div>
+
+  <!-- Back Button -->
+  <button class="back-btn" onclick="window.location.href='dashboard.html'">
+    <i class="fa-solid fa-arrow-left"></i> Back
+  </button>
+
+  <header class="header fade-in">
+    <i class="fa-solid fa-users header-icon"></i>
+    <h1>Our Community</h1>
+    <p>Innovating learning with technology & teamwork</p>
+  </header>
+
+  <main class="community-container">
+    <!-- About -->
+    <section class="glass-card fade-in">
+      <h2><i class="fa-solid fa-circle-info"></i> About This App</h2>
+      <p>
+        This platform is built to help students practice IELTS speaking, track their
+        improvement, and gain confidence with AI-powered feedback.
+      </p>
+    </section>
+
+    <!-- Developers -->
+    <section class="glass-card fade-in">
+      <h2><i class="fa-solid fa-code"></i> Developers & Founders</h2>
+      <div class="dev-cards">
+        <div class="dev-card">
+          <div class="avatar">
+            <img src="founder.jpg" alt="Founder">
+          </div>
+          <h3>Jahongir Shaxobov</h3>
+          <p>Founder & Project director</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Academy Info -->
+    <section class="glass-card fade-in">
+      <h2><i class="fa-solid fa-school"></i> About Our Academy</h2>
+      <p>
+        Scor Academy is a modern IT learning center based in Karshi city,
+        offering innovative education and global opportunities for students.
+      </p>
+    </section>
+
+    <!-- Donation -->
+    <section class="glass-card fade-in donation">
+      <h2><i class="fa-solid fa-heart"></i> Support Us</h2>
+      <p>Your support helps us grow and keep this project alive:</p>
+      <div class="card-number">
+        <span id="cardNum">5614 6814 0964 3230</span>
+        <button onclick="copyCard()"><i class="fa-regular fa-copy"></i> Copy</button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>© 2025 Scor Academy. All rights reserved.</p>
+  </footer>
+
+  <script src="community.js"></script>
+</body>
+</html>

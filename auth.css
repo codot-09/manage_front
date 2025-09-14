@@ -1,0 +1,70 @@
+/* Reset */
+* { margin:0; padding:0; box-sizing:border-box; font-family:"Segoe UI", sans-serif; }
+
+body {
+  background: #0f0f1a;
+  color: #fff;
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  position:relative;
+  overflow:hidden;
+}
+
+/* Floating bubbles */
+.bubbles { position: fixed; top:0; left:0; width:100%; height:100%; z-index:-1; overflow:hidden; }
+.bubble { position:absolute; border-radius:50%; backdrop-filter: blur(2px); background: rgba(255,165,0,0.12); animation: float 20s infinite linear;}
+.bubble:nth-child(1){width:100px;height:100px;top:10%;left:15%; animation-duration:18s;}
+.bubble:nth-child(2){width:80px;height:80px;top:30%;left:70%; animation-duration:22s;}
+.bubble:nth-child(3){width:120px;height:120px;top:60%;left:30%; animation-duration:20s;}
+.bubble:nth-child(4){width:90px;height:90px;top:75%;left:80%; animation-duration:25s;}
+.bubble:nth-child(5){width:60px;height:60px;top:50%;left:50%; animation-duration:28s;}
+@keyframes float {0%{transform:translateY(0) rotate(0deg);}50%{transform:translateY(-50px) rotate(180deg);}100%{transform:translateY(0) rotate(360deg);}}
+
+/* Card container */
+.container {
+  background: rgba(255,255,255,0.05);
+  padding:2rem;
+  border-radius:1.2rem;
+  max-width:420px;
+  width:100%;
+  text-align:center;
+  box-shadow:0 8px 25px rgba(0,0,0,0.35);
+  border-left: 5px solid #ff6600;
+  animation: fadeIn 1.5s ease;
+}
+@keyframes fadeIn { from{opacity:0; transform:scale(0.9);} to{opacity:1; transform:scale(1);} }
+
+.logo { width:100px; margin-bottom:1rem; animation:pulse 3s ease-in-out infinite; }
+@keyframes pulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.1);} }
+
+h1 { margin-bottom:1.5rem; font-size:1.6rem; font-weight:600; color:#ff944d; }
+
+/* Form */
+form { display:none; margin-top:1.5rem; text-align:left; }
+label { display:block; margin-bottom:.3rem; font-size:.9rem; font-weight:500; color:#ddd; }
+input, select {
+  width:100%; padding:.7rem; margin-bottom:1rem;
+  border:1px solid #333; border-radius:.5rem; font-size:.95rem;
+  background:rgba(255,255,255,0.08); color:#fff;
+}
+input::placeholder { color:rgba(255,255,255,0.5); }
+
+button {
+  width:100%; padding:.9rem; border:none; border-radius:.6rem;
+  background:#ff6600; color:#fff; font-size:1rem; font-weight:600;
+  cursor:pointer; transition:transform .2s, background .2s, box-shadow .2s;
+}
+button:hover {
+  background:#e65c00;
+  transform: translateY(-2px) scale(1.03);
+  box-shadow:0 0 12px rgba(255,102,0,0.6);
+}
+
+/* Responsive */
+@media(max-width:480px){
+  .container{ margin:0 1rem; padding:1.5rem; }
+  .logo{ width:80px; }
+  h1{ font-size:1.3rem; }
+}

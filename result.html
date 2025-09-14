@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Exam Result</title>
+  <link rel="stylesheet" href="result.css">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+  <!-- Background bubbles -->
+  <div class="bubbles">
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+  </div>
+
+  <!-- Back button -->
+  <button class="back-btn" id="backBtn">
+    <i class="fa-solid fa-arrow-left"></i> Back
+  </button>
+
+  <div class="result-container">
+    <h1 class="page-title">Exam Result</h1>
+
+    <div class="buttons">
+      <button id="pdfBtn">
+        <i class="fa-solid fa-file-arrow-down"></i> Download PDF
+      </button>
+    </div>
+
+    <div id="resultContainer"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="result.js"></script>
+</body>
+</html>

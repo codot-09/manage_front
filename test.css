@@ -1,0 +1,354 @@
+:root {
+  --bg: #0b0c10;
+  --glass: rgba(255, 255, 255, 0.04);
+  --accent: #ff7a00;
+  --muted: rgba(255, 255, 255, 0.7);
+  --danger: #ff4d4d;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: "Segoe UI", Tahoma, sans-serif;
+  background: var(--bg);
+  color: #fff;
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+}
+
+/* Overlays / Modals */
+.overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.78);
+  z-index: 60;
+  padding: 12px;
+}
+
+.hidden {
+  display: none;
+}
+
+.modal {
+  width: 100%;
+  max-width: 640px;
+  background: rgba(18, 20, 30, 0.95);
+  border-radius: 16px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(8px);
+}
+
+.modal h2 {
+  margin: 0 0 12px;
+  font-size: clamp(18px, 5vw, 20px);
+}
+
+.modal p {
+  color: var(--muted);
+  line-height: 1.45;
+  font-size: clamp(14px, 4vw, 15px);
+}
+
+.modal-actions {
+  margin-top: 16px;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.btn {
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: 0;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: clamp(14px, 4vw, 15px);
+}
+
+.primary {
+  background: linear-gradient(90deg, var(--accent), #ffb366);
+  color: #081018;
+}
+
+.primary:active {
+  transform: translateY(1px);
+}
+
+/* Main container */
+.test-container {
+  position: relative;
+  z-index: 2;
+  max-width: 1100px;
+  margin: 12px auto;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: calc(100vh - 24px);
+}
+
+/* Header */
+.test-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.meta, .meta-right {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  font-size: clamp(12px, 3.5vw, 13px);
+  color: var(--muted);
+}
+
+/* Question area */
+.question-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start; /* Align content to the top */
+  gap: 16px;
+  padding: 10px;
+  margin-bottom: 220px; /* Ensure space for timer at the bottom */
+}
+
+.question-text {
+  font-size: clamp(18px, 5vw, 22px);
+  text-align: center;
+  max-width: 100%;
+  line-height: 1.4;
+  font-weight: 600;
+  color: #fff;
+  padding: 0 8px;
+  word-break: break-word;
+}
+
+/* Images displayed consistently at the top */
+.images {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  align-items: flex-start; /* Align images to the top */
+  flex-wrap: wrap;
+  width: 100%;
+  max-width: 1000px; /* Limit max width for consistency */
+  margin-bottom: 16px; /* Space between images and question text */
+}
+
+.images img {
+  width: 100%;
+  max-width: 220px; /* Consistent max width */
+  min-width: 100px;
+  height: auto; /* Maintain aspect ratio */
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.02);
+  object-fit: cover;
+  transition: transform 0.25s;
+}
+
+.images img:hover {
+  transform: scale(1.03);
+}
+
+/* Timer center fixed */
+.timer-wrap {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: clamp(20px, 5vw, 30px);
+  z-index: 40;
+  pointer-events: none;
+}
+
+.timer-circle {
+  width: clamp(120px, 30vw, 200px);
+  height: clamp(120px, 30vw, 200px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.timer-svg {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.timer-number {
+  position: relative;
+  font-size: clamp(28px, 10vw, 40px);
+  font-weight: 800;
+  color: var(--accent);
+  text-shadow: 0 6px 18px rgba(255, 122, 0, 0.10);
+}
+
+.timer-bg {
+  filter: blur(0.4px);
+}
+
+.timer-progress {
+  transform: rotate(-90deg);
+  transform-origin: 60px 60px;
+  transition: stroke-dashoffset 0.3s linear;
+}
+
+/* Warning and final effects */
+.timer-circle.warning .timer-number {
+  animation: pulse 0.9s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+
+.timer-circle.final .timer-number {
+  animation: flash 0.18s 2;
+}
+
+@keyframes flash {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+/* Responsive adjustments */
+@media (max-width: 900px) {
+  .test-container {
+    margin: 8px auto;
+    padding: 8px;
+  }
+
+  .images {
+    gap: 10px;
+  }
+
+  .images img {
+    max-width: 180px; /* Smaller images for mid-sized screens */
+  }
+
+  .question-section {
+    margin-bottom: 180px; /* Adjust for smaller timer */
+  }
+
+  .timer-circle {
+    width: 160px;
+    height: 160px;
+  }
+
+  .timer-number {
+    font-size: 34px;
+  }
+
+  .question-text {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 600px) {
+  .modal {
+    padding: 16px;
+  }
+
+  .modal h2 {
+    font-size: 18px;
+  }
+
+  .modal p {
+    font-size: 14px;
+  }
+
+  .btn {
+    padding: 8px 14px;
+    font-size: 14px;
+  }
+
+  .test-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .meta, .meta-right {
+    gap: 10px;
+    font-size: 12px;
+  }
+
+  .images {
+    flex-direction: column; /* Stack images vertically on mobile */
+    align-items: center;
+  }
+
+  .images img {
+    max-width: 100%; /* Full width for single-column layout */
+    width: 100%;
+    max-width: 300px; /* Cap max width for mobile */
+  }
+
+  .question-section {
+    padding: 8px;
+    margin-bottom: 160px; /* Ensure timer doesn't overlap */
+  }
+
+  .question-text {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 400px) {
+  .timer-circle {
+    width: 120px;
+    height: 120px;
+  }
+
+  .timer-number {
+    font-size: 28px;
+  }
+
+  .question-text {
+    font-size: 16px;
+  }
+
+  .modal {
+    padding: 12px;
+  }
+
+  .images img {
+    max-width: 100%;
+  }
+}
+
+/* Disable selection on main UI */
+.test-container, .modal {
+  user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+}
+
+/* Ensure touch devices handle interactions smoothly */
+.btn, .images img {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Prevent zoom on double-tap for better mobile UX */
+html {
+  touch-action: manipulation;
+}

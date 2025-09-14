@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard | ManageLC</title>
+  <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+  <!-- Background bubbles -->
+  <div class="bubbles">
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+  </div>
+
+  <div class="dashboard-container">
+    <!-- Profile -->
+    <div class="profile-card" id="profileCard">
+      <img id="profileImg" src="User-Avatar-Profile-Clip-Art-Transparent-PNG.png" alt="Profile"/>
+      <div class="profile-info">
+        <h3 id="profileName">Loading...</h3>
+        <p id="profileDetails">Hover to load details</p>
+      </div>
+    </div>
+
+    <!-- Menu -->
+    <section class="menu-section">
+      <div class="menu-card" onclick="window.location.href='test.html'">
+        <div class="icon">📝</div>
+        <h3>Take Exam</h3>
+        <p>Start your speaking test simulation</p>
+      </div>
+      <div class="menu-card" onclick="window.location.href='history.html'">
+        <div class="icon">📜</div>
+        <h3>Exam History</h3>
+        <p>Check your past exam results</p>
+      </div>
+      <div class="menu-card" onclick="window.location.href='community.html'">
+        <div class="icon">🌐</div>
+        <h3>Community</h3>
+        <p>Connect and practice with others</p>
+      </div>
+    </section>
+
+    <!-- Dashboard stats -->
+    <div class="stats-section">
+      <div class="stat-card">
+        <h3>Your Level</h3>
+        <p id="userLevel">Loading...</p>
+      </div>
+      <div class="stat-card">
+        <h3>Your Score</h3>
+        <p id="userPercentage">0%</p>
+      </div>
+    </div>
+
+    <!-- Leaderboard -->
+    <div class="leaderboard-section">
+      <h2>🏆 Leaderboard</h2>
+      <div id="leaderboardList" class="leaderboard-list"></div>
+    </div>
+
+    <button id="logoutBtn" class="logout-btn">Logout</button>
+  </div>
+
+  <script src="dashboard.js"></script>
+</body>
+</html>

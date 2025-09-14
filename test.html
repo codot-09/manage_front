@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Speaking Test</title>
+  <link rel="stylesheet" href="test.css" />
+</head>
+<body>
+  <!-- Start overlay (instructions) -->
+  <div class="overlay" id="startOverlay" role="dialog" aria-modal="true">
+    <div class="modal">
+      <h2>📝 Test Instructions</h2>
+      <p>
+        You will see a question (text + optional images).<br>
+        First you'll have a short <strong>think</strong> time, then a <strong>speak</strong> time. Microphone will record continuously.<br>
+        Do not refresh, leave the page, copy text or switch tabs until the test ends.
+      </p>
+      <div class="modal-actions">
+        <button id="startBtn" class="btn primary">✅ Start Test</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- End modal (shown automatically when test finishes) -->
+  <div class="overlay hidden" id="endOverlay" role="dialog" aria-modal="true">
+    <div class="modal">
+      <h2>✅ Test finished</h2>
+      <div id="endInfo" class="end-info">
+        <p>Results are processed. You can return to the dashboard.</p>
+      </div>
+      <div class="modal-actions">
+        <button id="toDashboard" class="btn primary">Go to Dashboard</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main test UI -->
+  <main class="test-container hidden" id="testContainer" role="application" aria-live="polite">
+    <header class="test-header">
+      <div class="meta">
+        <div class="meta-item">Category: <span id="categoryName">—</span></div>
+        <div class="meta-item">Part: <span id="partName">—</span></div>
+      </div>
+      <div class="meta-right">
+        <div class="meta-item">Question: <span id="qIndex">—</span></div>
+        <div class="meta-item">Progress: <span id="progress">—</span></div>
+      </div>
+    </header>
+
+    <section class="question-section" id="questionSection">
+      <div class="images" id="imageContainer" aria-hidden="true"></div>
+      <h2 id="questionText" class="question-text">Loading...</h2>
+    </section>
+
+    <!-- Center big circular timer -->
+    <div class="timer-wrap" aria-hidden="false">
+      <div class="timer-circle" id="timerCircle" role="timer" aria-live="assertive" aria-atomic="true">
+        <svg class="timer-svg" viewBox="0 0 120 120" width="220" height="220" aria-hidden="true">
+          <defs>
+            <linearGradient id="g1" x1="0" x2="1">
+              <stop offset="0%" stop-color="#ff7a00" />
+              <stop offset="100%" stop-color="#ffb366" />
+            </linearGradient>
+          </defs>
+          <circle class="timer-bg" cx="60" cy="60" r="52" stroke="rgba(255,255,255,0.06)" stroke-width="12" fill="none"></circle>
+          <circle class="timer-progress" cx="60" cy="60" r="52" stroke="url(#g1)" stroke-width="12" fill="none" stroke-linecap="round" stroke-dasharray="327" stroke-dashoffset="0"></circle>
+        </svg>
+        <div class="timer-number" id="timerNumber">00</div>
+      </div>
+    </div>
+  </main>
+
+  <script src="test.js"></script>
+</body>
+</html>

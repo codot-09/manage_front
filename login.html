@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Find out your English level</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="auth.css">
+</head>
+<body>
+  <!-- Floating bubbles background -->
+  <div class="bubbles">
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+  </div>
+
+  <div class="container" data-aos="zoom-in">
+    <img src="logo.png" alt="Logo" class="logo">
+    <h1>Find out your English level</h1>
+    
+    <!-- Telegram login -->
+    <div id="tg-login">
+      <script async src="https://telegram.org/js/telegram-widget.js?22"
+        data-telegram-login="managelc_bot"
+        data-size="large"
+        data-onauth="onTelegramAuth(user)"
+        data-request-access="write">
+      </script>
+    </div>
+
+    <!-- Extra form -->
+    <form id="extra-form">
+      <label for="region">Region</label>
+      <select id="region" required>
+        <option value="">Select your region</option>
+        <option>Andijon</option><option>Buxoro</option><option>Farg‘ona</option>
+        <option>Jizzax</option><option>Xorazm</option><option>Namangan</option>
+        <option>Navoiy</option><option>Qashqadaryo</option><option>Qoraqalpog‘iston</option>
+        <option>Samarqand</option><option>Sirdaryo</option><option>Surxondaryo</option>
+        <option>Toshkent</option><option>Toshkent sh.</option>
+      </select>
+
+      <label for="city">City</label>
+      <input type="text" id="city" required>
+
+      <label for="phone">Phone</label>
+      <input type="tel" id="phone" placeholder="+998901234567" required>
+
+      <button type="submit">Continue</button>
+    </form>
+  </div>
+
+  <script>
+    if (localStorage.getItem("token")) {
+      window.location.href = "/dashboard.html";
+    }
+
+    let tgData = {};
+    function onTelegramAuth(user) {
+      tgData.chatId = user.id.toString();
+      tgData.fullName = user.first_name + (user.last_name ? " " + user.last_name : "");
+      tgData.imageUrl = user.photo_url;
+      document.getElementById("tg-login").style.display = "none";
+      document.getElementById("extra-form").style.display = "block";
+    }
+
+    document.getElementById("extra-form").addEventListener("submit", async e => {
+      e.preventDefault();
+      const payload = {
+        chatId: tgData.chatId,
+        fullName: tgData.fullName,
+        region: document.getElementById("region").value,
+        city: document.getElementById("city").value,
+        phone: document.getElementById("phone").value,
+        imageUrl: tgData.imageUrl
+      };
+      const res = await fetch("https://api.example.com/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      const result = await res.json();
+      if (result.success) {
+        localStorage.setItem("token", result.data);
+        window.location.href = "/dashboard.html";
+      } else {
+        alert(result.message);
+      }
+    });
+  </script>
+</body>
+</html>
