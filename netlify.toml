@@ -30,3 +30,8 @@
   from = "/*"
   to = "/index.html"
   status = 200
+
+[[redirects]]
+  from = "/test"
+  to = "/test.html"
+  status = 200

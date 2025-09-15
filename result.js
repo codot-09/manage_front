@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
   const token = localStorage.getItem("token");
   if (!token) {
-    window.location.href = "index.html";
+    window.location.href = "/login";
     return;
   }
 
@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const testId = urlParams.get("id");
   if (!testId) {
     alert("Test ID not found!");
-    window.location.href = "history.html";
+    window.location.href = "/history";
     return;
   }
 
@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Back button
   backBtn.addEventListener("click", () => {
-    window.location.href = "history.html";
+    window.location.href = "/history";
   });
 
   // PDF yuklab olish

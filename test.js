@@ -5,7 +5,7 @@ const API_RESULT_FALLBACK = `${API_BASE}/api/test/result`; // optional
 const token = localStorage.getItem("token");
 
 if (!token) {
-  location.href = "index.html";
+  location.href = "/login";
 }
 
 // STATE
@@ -46,7 +46,7 @@ startBtn.addEventListener("click", async () => {
     await initMedia();
   } catch (e) {
     alert("Microphone access is required.");
-    location.href = "dashboard.html";
+    location.href = "/dashboard";
     return;
   }
   startRecognition();
@@ -300,7 +300,7 @@ async function onTestFinished(res) {
     // revoke object URLs
     const links = endInfo.querySelectorAll("a");
     links.forEach(l => URL.revokeObjectURL(l.href));
-    location.href = "dashboard.html";
+    location.href = "/dashboard";
   };
 
   // remove beforeunload blocking so user can leave

@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   const token = localStorage.getItem("token");
-  if (!token) window.location.href = "index.html";
+  if (!token) window.location.href = "/login";
 
   const historyList = document.getElementById("historyList");
   historyList.innerHTML = "";
@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Card click qilganda result page ga o‘tadi (id ni query param sifatida)
         card.addEventListener("click", () => {
-          window.location.href = `result.html?id=${test.id}`;
+          window.location.href = `/result?id=${test.id}`;
         });
 
         // Hover animatsiyasi uchun class

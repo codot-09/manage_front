@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   const token = localStorage.getItem("token");
-  if(!token) window.location.href = "index.html";
+  if(!token) window.location.href = "/";
 
   const profileCard = document.getElementById("profileCard");
   const profileName = document.getElementById("profileName");
@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   logoutBtn.addEventListener("click", () => {
     localStorage.removeItem("token");
-    window.location.href = "index.html";
+    window.location.href = "/login";
   });
 
   // Profile hover
