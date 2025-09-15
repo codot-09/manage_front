@@ -1,17 +1,15 @@
-// CONFIG
 const API_BASE = "https://api.managelc.uz";
 const API_START = `${API_BASE}/api/test/startTest`;
-const API_RESULT_FALLBACK = `${API_BASE}/api/test/result`; // optional
+const API_RESULT_FALLBACK = `${API_BASE}/api/test/result`;
 const token = localStorage.getItem("token");
 
 if (!token) {
   location.href = "/login";
 }
 
-// STATE
 let mediaStream = null;
-let audioSegments = []; // { questionId, blob }
-let finalTranscripts = []; // { questionId, transcript }
+let audioSegments = [];
+let finalTranscripts = [];
 let currentQuestion = null;
 let recognition = null;
 let partialTranscript = "";
@@ -19,7 +17,6 @@ let timerInterval = null;
 let timerTotal = 0;
 let timerLeft = 0;
 
-// UI
 const startOverlay = document.getElementById("startOverlay");
 const startBtn = document.getElementById("startBtn");
 const testContainer = document.getElementById("testContainer");
@@ -32,21 +29,11 @@ const timerCircleEl = document.getElementById("timerCircle");
 const endOverlay = document.getElementById("endOverlay");
 const endInfo = document.getElementById("endInfo");
 const toDashboardBtn = document.getElementById("toDashboard");
-const transcriptEl = document.getElementById("transcriptDisplay");
+const liveTranscriptEl = document.createElement("div");
+liveTranscriptEl.id = "liveTranscript";
+liveTranscriptEl.style.cssText = "font-size: 18px; color: #007bff; margin-top: 10px; padding: 10px; border: 1px solid #ddd; border-radius: 5px; min-height: 20px; display: none;";
+testContainer.appendChild(liveTranscriptEl);
 
-// Ensure transcript element exists; create if not
-if (!transcriptEl) {
-  transcriptEl = document.createElement("div");
-  transcriptEl.id = "transcriptDisplay";
-  transcriptEl.style.cssText = "font-size: 18px; color: #007bff; margin-top: 10px; padding: 10px; border: 1px solid #ddd; border-radius: 5px; min-height: 20px; display: none;";
-  if (questionTextEl && questionTextEl.parentNode) {
-    questionTextEl.parentNode.insertBefore(transcriptEl, questionTextEl.nextSibling);
-  } else {
-    testContainer.appendChild(transcriptEl);
-  }
-}
-
-// START
 startBtn.addEventListener("click", async () => {
   startOverlay.classList.add("hidden");
   testContainer.classList.remove("hidden");
@@ -60,15 +47,13 @@ startBtn.addEventListener("click", async () => {
   }
   const started = startRecognition();
   if (!started) {
-    alert("Speech recognition is not supported in your browser. Please use a compatible browser.");
+    alert("Speech recognition is not supported in your browser.");
     location.href = "/dashboard";
     return;
   }
-  // first call: no body
   await startTest(null);
 });
 
-// prevent cheating (copy/refresh/leave)
 function blockCheatActions() {
   document.addEventListener("copy", e => e.preventDefault());
   document.addEventListener("cut", e => e.preventDefault());
@@ -81,12 +66,10 @@ function blockCheatActions() {
   });
 }
 
-// init microphone only once (keep stream)
 async function initMedia() {
   mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
 }
 
-// SpeechRecognition (collect transcript but do NOT show) - now with real-time display update
 function startRecognition() {
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SpeechRecognition) return false;
@@ -103,24 +86,13 @@ function startRecognition() {
       else interim += r[0].transcript;
     }
     partialTranscript = (final + interim).trim();
-    // Real-time update to UI if element exists
-    if (transcriptEl) {
-      transcriptEl.textContent = partialTranscript;
-    }
+    liveTranscriptEl.textContent = partialTranscript;
   };
-  recognition.onerror = (e) => { 
-    console.warn("SpeechRecognition error", e); 
-    // Optionally restart on error
-    try { recognition.start(); } catch (err) {}
-  };
-  recognition.onend = () => {
-    // Restart to keep continuous
-    try { recognition.start(); } catch (err) {}
-  };
+  recognition.onerror = (e) => { console.error("SpeechRecognition error", e); };
+  recognition.onend = () => { try { recognition.start(); } catch (e) {} };
   try { recognition.start(); return true; } catch (e) { return false; }
 }
 
-// START / NEXT question
 async function startTest(answerText, retries = 3) {
   const body = {};
   if (currentQuestion && answerText !== null) {
@@ -142,15 +114,11 @@ async function startTest(answerText, retries = 3) {
       const r = await fetch(API_START, options);
       const res = await r.json();
       if (!res || !res.success) throw new Error("Invalid response");
-
-      // Check if response indicates test completion (contains totalQuestions or percentage)
       if (!res.data || res.data.totalQuestions !== undefined || res.data.percentage !== undefined) {
         await onTestFinished(res);
         return;
       }
-
-      const q = res.data;
-      showQuestion(q);
+      showQuestion(res.data);
       return;
     } catch (err) {
       console.error(`startTest attempt ${attempt} failed`, err);
@@ -158,19 +126,15 @@ async function startTest(answerText, retries = 3) {
         await finishByError();
         return;
       }
-      await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds before retry
+      await new Promise(resolve => setTimeout(resolve, 2000));
     }
   }
 }
 
-// render question and auto-run think->speak
 function showQuestion(q) {
   currentQuestion = q;
-
-  // faqat Part qismi (categoryName chiqadi)
   partNameEl.textContent = q.categoryName || "—";
   questionTextEl.textContent = q.question || "—";
-
   imageContainer.innerHTML = "";
   if (Array.isArray(q.imgUrls) && q.imgUrls.length) {
     q.imgUrls.forEach(url => {
@@ -180,57 +144,33 @@ function showQuestion(q) {
       imageContainer.appendChild(img);
     });
   }
-
-  // Hide transcript display for new question
-  if (transcriptEl) {
-    transcriptEl.style.display = "none";
-    transcriptEl.textContent = "";
-  }
-
-  // reset partial transcript then start
+  liveTranscriptEl.style.display = "none";
+  liveTranscriptEl.textContent = "";
   partialTranscript = "";
-
   const thinkSeconds = Number(q.timeToThink || 5);
   const speakSeconds = Number(q.timeToComplete || 30);
   startThinkThenSpeak(thinkSeconds, speakSeconds);
 }
 
-// think -> speak sequence
 async function startThinkThenSpeak(thinkSeconds, speakSeconds) {
-  // Hide transcript during think phase
-  if (transcriptEl) {
-    transcriptEl.style.display = "none";
-    transcriptEl.textContent = "";
-  }
-
-  // Think
+  liveTranscriptEl.style.display = "none";
   await runTimer(thinkSeconds, false);
-
-  // Speak: start per-question recorder + set partialTranscript="" + show transcript display
+  liveTranscriptEl.style.display = "block";
+  liveTranscriptEl.textContent = "";
   const recorder = startRecordingForQuestion(currentQuestion.id);
   partialTranscript = "";
-  if (transcriptEl) {
-    transcriptEl.style.display = "block";
-    transcriptEl.textContent = "";
-  }
   await runTimer(speakSeconds, true);
-
-  // finish speak: stop recorder, get blob
+  liveTranscriptEl.style.display = "none";
   const blob = await stopRecordingForQuestion(recorder);
-  const transcriptText = partialTranscript || ""; // may be empty if SpeechRecognition not available
+  const transcriptText = partialTranscript || "";
   if (!transcriptText.trim()) {
     console.warn("No transcript captured for question:", currentQuestion.id);
-    // Optionally, you can add user notification here if needed
   }
   finalTranscripts.push({ questionId: currentQuestion.id, transcript: transcriptText });
-
   if (blob) audioSegments.push({ questionId: currentQuestion.id, blob });
-
-  // automatically call next (server will respond with next question or finish)
   await startTest(transcriptText);
 }
 
-// run countdown and update svg progress; resolves when complete
 function runTimer(seconds, isSpeak) {
   return new Promise((resolve) => {
     clearInterval(timerInterval);
@@ -250,15 +190,12 @@ function runTimer(seconds, isSpeak) {
       const offset = circumference * (1 - progress);
       timerProgressEl.style.strokeDashoffset = offset;
       setTimerNumber(timerLeft);
-
-      // visual warnings for speaking phase
       if (isSpeak && timerLeft <= 5 && timerLeft > 0) timerCircleEl.classList.add("warning");
       if (isSpeak && timerLeft === 0) {
         timerCircleEl.classList.remove("warning");
         timerCircleEl.classList.add("final");
         setTimeout(() => timerCircleEl.classList.remove("final"), 400);
       }
-
       if (timerLeft <= 0) {
         clearInterval(timerInterval);
         resolve();
@@ -271,7 +208,6 @@ function setTimerNumber(n) {
   timerNumberEl.textContent = String(n).padStart(2, "0");
 }
 
-// per-question recorder helpers
 function startRecordingForQuestion(questionId) {
   if (!mediaStream) return null;
   let mime = 'audio/webm';
@@ -302,25 +238,18 @@ function stopRecordingForQuestion(recorder) {
   });
 }
 
-// when test finishes: cleanup and show end overlay
 async function onTestFinished(res) {
-  // Hide transcript display
-  if (transcriptEl) {
-    transcriptEl.style.display = "none";
-  }
+  liveTranscriptEl.style.display = "none";
   try { if (recognition) recognition.stop(); } catch (e) {}
   try { if (mediaStream) { mediaStream.getTracks().forEach(t => t.stop()); mediaStream = null; } } catch (e) {}
-  // try to get final result from fallback endpoint
   let finalData = res?.data || null;
   if (!finalData) {
     try {
       const r = await fetch(API_RESULT_FALLBACK, { headers: { "accept": "*/*", "Authorization": `Bearer ${token}` } });
       const j = await r.json();
       if (j && j.success && j.data) finalData = j.data;
-    } catch (e) { /* ignore */ }
+    } catch (e) {}
   }
-
-  // create download links for audio & transcripts (only now)
   endInfo.innerHTML = "";
   if (finalData) {
     endInfo.innerHTML += `<p><strong>Score:</strong> ${finalData.percentage ?? "—"}%</p>
@@ -329,7 +258,6 @@ async function onTestFinished(res) {
   } else {
     endInfo.innerHTML += `<p>Your test is finished. Results will appear on dashboard.</p>`;
   }
-
   if (audioSegments.length) {
     const all = audioSegments.map(s => s.blob);
     const combined = new Blob(all, { type: all[0]?.type || 'audio/webm' });
@@ -342,7 +270,6 @@ async function onTestFinished(res) {
     a.style.marginRight = "8px";
     endInfo.appendChild(a);
   }
-
   if (finalTranscripts.length) {
     const tb = new Blob([JSON.stringify(finalTranscripts, null, 2)], { type: 'application/json' });
     const turl = URL.createObjectURL(tb);
@@ -353,29 +280,20 @@ async function onTestFinished(res) {
     a2.download = `transcripts.json`;
     endInfo.appendChild(a2);
   }
-
   endOverlay.classList.remove("hidden");
-
   toDashboardBtn.onclick = () => {
-    // revoke object URLs
     const links = endInfo.querySelectorAll("a");
     links.forEach(l => URL.revokeObjectURL(l.href));
     location.href = "/dashboard";
   };
-
-  // remove beforeunload blocking so user can leave
   window.onbeforeunload = null;
 }
 
-// fallback finish on error
 async function finishByError() {
-  if (transcriptEl) {
-    transcriptEl.style.display = "none";
-  }
+  liveTranscriptEl.style.display = "none";
   endInfo.innerHTML = `<p>Network error. Test ended.</p>`;
   endOverlay.classList.remove("hidden");
   window.onbeforeunload = null;
 }
 
-// show start overlay
 startOverlay.classList.remove("hidden");
