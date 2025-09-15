@@ -13,7 +13,6 @@ let mediaStream = null;
 let audioSegments = []; // { questionId, blob }
 let finalTranscripts = []; // { questionId, transcript }
 let currentQuestion = null;
-let questionIndex = 0;
 let recognition = null;
 let partialTranscript = "";
 let timerInterval = null;
@@ -26,10 +25,7 @@ const startBtn = document.getElementById("startBtn");
 const testContainer = document.getElementById("testContainer");
 const questionTextEl = document.getElementById("questionText");
 const imageContainer = document.getElementById("imageContainer");
-const categoryNameEl = document.getElementById("categoryName");
 const partNameEl = document.getElementById("partName");
-const qIndexEl = document.getElementById("qIndex");
-const progressEl = document.getElementById("progress");
 const timerNumberEl = document.getElementById("timerNumber");
 const timerProgressEl = document.querySelector(".timer-progress");
 const timerCircleEl = document.getElementById("timerCircle");
@@ -133,12 +129,9 @@ async function startTest(answerText) {
 // render question and auto-run think->speak
 function showQuestion(q) {
   currentQuestion = q;
-  questionIndex++;
-  qIndexEl.textContent = questionIndex;
-  progressEl.textContent = questionIndex;
 
-  categoryNameEl.textContent = q.categoryName || "—";
-  partNameEl.textContent = q.subLevelName || "—";
+  // faqat Part qismi (categoryName chiqadi)
+  partNameEl.textContent = q.categoryName || "—";
   questionTextEl.textContent = q.question || "—";
 
   imageContainer.innerHTML = "";
