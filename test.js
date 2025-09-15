@@ -117,7 +117,8 @@ async function startTest(answerText) {
     return;
   }
 
-  if (!res || !res.success || !res.data) {
+  // Check if response indicates test completion (contains totalQuestions or percentage)
+  if (!res || !res.success || !res.data || res.data.totalQuestions !== undefined || res.data.percentage !== undefined) {
     await onTestFinished(res);
     return;
   }
@@ -199,7 +200,7 @@ function runTimer(seconds, isSpeak) {
       if (isSpeak && timerLeft === 0) {
         timerCircleEl.classList.remove("warning");
         timerCircleEl.classList.add("final");
-        setTimeout(()=> timerCircleEl.classList.remove("final"), 400);
+        setTimeout(() => timerCircleEl.classList.remove("final"), 400);
       }
 
       if (timerLeft <= 0) {
@@ -243,15 +244,17 @@ function stopRecordingForQuestion(recorder) {
 
 // when test finishes: cleanup and show end overlay
 async function onTestFinished(res) {
-  try { if (recognition) recognition.stop(); } catch(e){}
-  try { if (mediaStream) { mediaStream.getTracks().forEach(t => t.stop()); mediaStream = null; } } catch(e){}
+  try { if (recognition) recognition.stop(); } catch (e) {}
+  try { if (mediaStream) { mediaStream.getTracks().forEach(t => t.stop()); mediaStream = null; } } catch (e) {}
   // try to get final result from fallback endpoint
-  let finalData = null;
-  try {
-    const r = await fetch(API_RESULT_FALLBACK, { headers: { "accept":"*/*", "Authorization": `Bearer ${token}` }});
-    const j = await r.json();
-    if (j && j.success && j.data) finalData = j.data;
-  } catch(e){ /* ignore */ }
+  let finalData = res?.data || null;
+  if (!finalData) {
+    try {
+      const r = await fetch(API_RESULT_FALLBACK, { headers: { "accept": "*/*", "Authorization": `Bearer ${token}` } });
+      const j = await r.json();
+      if (j && j.success && j.data) finalData = j.data;
+    } catch (e) { /* ignore */ }
+  }
 
   // create download links for audio & transcripts (only now)
   endInfo.innerHTML = "";
@@ -259,6 +262,9 @@ async function onTestFinished(res) {
     endInfo.innerHTML += `<p><strong>Score:</strong> ${finalData.percentage ?? "—"}%</p>
       <p><strong>Status:</strong> ${finalData.status ?? "—"}</p>
       <p><strong>Date:</strong> ${finalData.localDate ?? "—"}</p>`;
+    if (finalData.description) {
+      endInfo.innerHTML += `<p><strong>Analysis:</strong></p><pre>${finalData.description}</pre>`;
+    }
   } else {
     endInfo.innerHTML += `<p>Your test is finished. Results will appear on dashboard.</p>`;
   }
@@ -306,3 +312,9 @@ async function finishByError() {
   endOverlay.classList.remove("hidden");
   window.onbeforeunload = null;
 }
+
+// stop test on unload
+window.onbeforeunload = () => {
+  if (recognition) recognition.stop();
+  if (mediaStream) mediaStream.getTracks().forEach(t => t.stop());
+};
