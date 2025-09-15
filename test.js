@@ -32,6 +32,19 @@ const timerCircleEl = document.getElementById("timerCircle");
 const endOverlay = document.getElementById("endOverlay");
 const endInfo = document.getElementById("endInfo");
 const toDashboardBtn = document.getElementById("toDashboard");
+const transcriptEl = document.getElementById("transcriptDisplay");
+
+// Ensure transcript element exists; create if not
+if (!transcriptEl) {
+  transcriptEl = document.createElement("div");
+  transcriptEl.id = "transcriptDisplay";
+  transcriptEl.style.cssText = "font-size: 18px; color: #007bff; margin-top: 10px; padding: 10px; border: 1px solid #ddd; border-radius: 5px; min-height: 20px; display: none;";
+  if (questionTextEl && questionTextEl.parentNode) {
+    questionTextEl.parentNode.insertBefore(transcriptEl, questionTextEl.nextSibling);
+  } else {
+    testContainer.appendChild(transcriptEl);
+  }
+}
 
 // START
 startBtn.addEventListener("click", async () => {
@@ -73,7 +86,7 @@ async function initMedia() {
   mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
 }
 
-// SpeechRecognition (collect transcript but do NOT show)
+// SpeechRecognition (collect transcript but do NOT show) - now with real-time display update
 function startRecognition() {
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SpeechRecognition) return false;
@@ -90,8 +103,20 @@ function startRecognition() {
       else interim += r[0].transcript;
     }
     partialTranscript = (final + interim).trim();
+    // Real-time update to UI if element exists
+    if (transcriptEl) {
+      transcriptEl.textContent = partialTranscript;
+    }
   };
-  recognition.onerror = (e) => { console.warn("SpeechRecognition error", e); };
+  recognition.onerror = (e) => { 
+    console.warn("SpeechRecognition error", e); 
+    // Optionally restart on error
+    try { recognition.start(); } catch (err) {}
+  };
+  recognition.onend = () => {
+    // Restart to keep continuous
+    try { recognition.start(); } catch (err) {}
+  };
   try { recognition.start(); return true; } catch (e) { return false; }
 }
 
@@ -156,6 +181,12 @@ function showQuestion(q) {
     });
   }
 
+  // Hide transcript display for new question
+  if (transcriptEl) {
+    transcriptEl.style.display = "none";
+    transcriptEl.textContent = "";
+  }
+
   // reset partial transcript then start
   partialTranscript = "";
 
@@ -166,12 +197,22 @@ function showQuestion(q) {
 
 // think -> speak sequence
 async function startThinkThenSpeak(thinkSeconds, speakSeconds) {
+  // Hide transcript during think phase
+  if (transcriptEl) {
+    transcriptEl.style.display = "none";
+    transcriptEl.textContent = "";
+  }
+
   // Think
   await runTimer(thinkSeconds, false);
 
-  // Speak: start per-question recorder + set partialTranscript=""
+  // Speak: start per-question recorder + set partialTranscript="" + show transcript display
   const recorder = startRecordingForQuestion(currentQuestion.id);
   partialTranscript = "";
+  if (transcriptEl) {
+    transcriptEl.style.display = "block";
+    transcriptEl.textContent = "";
+  }
   await runTimer(speakSeconds, true);
 
   // finish speak: stop recorder, get blob
@@ -263,6 +304,10 @@ function stopRecordingForQuestion(recorder) {
 
 // when test finishes: cleanup and show end overlay
 async function onTestFinished(res) {
+  // Hide transcript display
+  if (transcriptEl) {
+    transcriptEl.style.display = "none";
+  }
   try { if (recognition) recognition.stop(); } catch (e) {}
   try { if (mediaStream) { mediaStream.getTracks().forEach(t => t.stop()); mediaStream = null; } } catch (e) {}
   // try to get final result from fallback endpoint
@@ -324,6 +369,9 @@ async function onTestFinished(res) {
 
 // fallback finish on error
 async function finishByError() {
+  if (transcriptEl) {
+    transcriptEl.style.display = "none";
+  }
   endInfo.innerHTML = `<p>Network error. Test ended.</p>`;
   endOverlay.classList.remove("hidden");
   window.onbeforeunload = null;
