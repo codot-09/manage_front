@@ -262,9 +262,6 @@ async function onTestFinished(res) {
     endInfo.innerHTML += `<p><strong>Score:</strong> ${finalData.percentage ?? "—"}%</p>
       <p><strong>Status:</strong> ${finalData.status ?? "—"}</p>
       <p><strong>Date:</strong> ${finalData.localDate ?? "—"}</p>`;
-    if (finalData.description) {
-      endInfo.innerHTML += `<p><strong>Analysis:</strong></p><pre>${finalData.description}</pre>`;
-    }
   } else {
     endInfo.innerHTML += `<p>Your test is finished. Results will appear on dashboard.</p>`;
   }
@@ -313,8 +310,5 @@ async function finishByError() {
   window.onbeforeunload = null;
 }
 
-// stop test on unload
-window.onbeforeunload = () => {
-  if (recognition) recognition.stop();
-  if (mediaStream) mediaStream.getTracks().forEach(t => t.stop());
-};
+// show start overlay
+startOverlay.classList.remove("hidden");

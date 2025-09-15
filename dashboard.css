@@ -8,14 +8,14 @@ body {
 
 .menu-card .icon {
   font-size: 2rem;
-  color: #ffb400; /* asosiy rang */
+  color: #ffb400;
   margin-bottom: 10px;
 }
 
 /* Advertisement Banner */
 .ad-banner {
   display: block;
-  width: 100%;
+  width: 95%;
   max-width: 800px;
   margin: 0 auto 20px;
   padding: 20px;
@@ -24,7 +24,7 @@ body {
   text-align: center;
   text-decoration: none;
   color: #fff;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.2);
   position: relative;
   overflow: hidden;
   animation: pulse 2s ease-in-out infinite;
@@ -33,7 +33,7 @@ body {
 
 .ad-banner:hover {
   transform: translateY(-5px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.3);
   background: linear-gradient(135deg, #ff8787, #5ba8f0, #6ad1cc);
 }
 
@@ -41,7 +41,7 @@ body {
   margin: 0;
   font-size: 1.8rem;
   font-weight: 700;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  text-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
 .ad-content p {
@@ -54,11 +54,13 @@ body {
 .ad-content .cta-button {
   display: inline-block;
   padding: 10px 20px;
+  margin-top: 10px;
   background-color: #fff;
   color: #4a90e2;
   font-weight: 600;
   border-radius: 8px;
   text-decoration: none;
+  cursor: pointer;
   transition: transform 0.3s ease, background-color 0.3s ease;
   animation: slideIn 1s ease-out forwards;
 }
@@ -70,47 +72,23 @@ body {
 
 /* Pulse animation for banner */
 @keyframes pulse {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.02);
-  }
-  100% {
-    transform: scale(1);
-  }
+  0% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+  100% { transform: scale(1); }
 }
 
 /* Slide-in animation for CTA button */
 @keyframes slideIn {
-  0% {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-  100% {
-    transform: translateX(0);
-    opacity: 1;
-  }
+  0% { transform: translateX(100%); opacity: 0; }
+  100% { transform: translateX(0); opacity: 1; }
 }
 
 /* Responsive design */
 @media (max-width: 600px) {
-  .ad-banner {
-    padding: 15px;
-  }
-
-  .ad-content h3 {
-    font-size: 1.4rem;
-  }
-
-  .ad-content p {
-    font-size: 0.95rem;
-  }
-
-  .ad-content .cta-button {
-    padding: 8px 15px;
-    font-size: 0.9rem;
-  }
+  .ad-banner { padding: 15px; }
+  .ad-content h3 { font-size: 1.4rem; }
+  .ad-content p { font-size: 0.95rem; }
+  .ad-content .cta-button { padding: 8px 15px; font-size: 0.9rem; }
 }
 
 /* Background bubbles */
