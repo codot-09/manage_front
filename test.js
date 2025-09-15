@@ -45,7 +45,12 @@ startBtn.addEventListener("click", async () => {
     location.href = "/dashboard";
     return;
   }
-  startRecognition();
+  const started = startRecognition();
+  if (!started) {
+    alert("Speech recognition is not supported in your browser. Please use a compatible browser.");
+    location.href = "/dashboard";
+    return;
+  }
   // first call: no body
   await startTest(null);
 });
@@ -71,7 +76,7 @@ async function initMedia() {
 // SpeechRecognition (collect transcript but do NOT show)
 function startRecognition() {
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SpeechRecognition) return;
+  if (!SpeechRecognition) return false;
   recognition = new SpeechRecognition();
   recognition.lang = "en-US";
   recognition.interimResults = true;
@@ -87,11 +92,11 @@ function startRecognition() {
     partialTranscript = (final + interim).trim();
   };
   recognition.onerror = (e) => { console.warn("SpeechRecognition error", e); };
-  try { recognition.start(); } catch (e) {}
+  try { recognition.start(); return true; } catch (e) { return false; }
 }
 
 // START / NEXT question
-async function startTest(answerText) {
+async function startTest(answerText, retries = 3) {
   const body = {};
   if (currentQuestion && answerText !== null) {
     body.questionId = currentQuestion.id;
@@ -107,24 +112,30 @@ async function startTest(answerText) {
     options.body = JSON.stringify(body);
   }
 
-  let res;
-  try {
-    const r = await fetch(API_START, options);
-    res = await r.json();
-  } catch (err) {
-    console.error("startTest fetch error", err);
-    await finishByError();
-    return;
-  }
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      const r = await fetch(API_START, options);
+      const res = await r.json();
+      if (!res || !res.success) throw new Error("Invalid response");
 
-  // Check if response indicates test completion (contains totalQuestions or percentage)
-  if (!res || !res.success || !res.data || res.data.totalQuestions !== undefined || res.data.percentage !== undefined) {
-    await onTestFinished(res);
-    return;
-  }
+      // Check if response indicates test completion (contains totalQuestions or percentage)
+      if (!res.data || res.data.totalQuestions !== undefined || res.data.percentage !== undefined) {
+        await onTestFinished(res);
+        return;
+      }
 
-  const q = res.data;
-  showQuestion(q);
+      const q = res.data;
+      showQuestion(q);
+      return;
+    } catch (err) {
+      console.error(`startTest attempt ${attempt} failed`, err);
+      if (attempt === retries) {
+        await finishByError();
+        return;
+      }
+      await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds before retry
+    }
+  }
 }
 
 // render question and auto-run think->speak
@@ -166,6 +177,10 @@ async function startThinkThenSpeak(thinkSeconds, speakSeconds) {
   // finish speak: stop recorder, get blob
   const blob = await stopRecordingForQuestion(recorder);
   const transcriptText = partialTranscript || ""; // may be empty if SpeechRecognition not available
+  if (!transcriptText.trim()) {
+    console.warn("No transcript captured for question:", currentQuestion.id);
+    // Optionally, you can add user notification here if needed
+  }
   finalTranscripts.push({ questionId: currentQuestion.id, transcript: transcriptText });
 
   if (blob) audioSegments.push({ questionId: currentQuestion.id, blob });
@@ -222,6 +237,10 @@ function startRecordingForQuestion(questionId) {
   if (!MediaRecorder.isTypeSupported(mime)) {
     if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) mime = 'audio/webm;codecs=opus';
     else if (MediaRecorder.isTypeSupported('audio/ogg')) mime = 'audio/ogg';
+    else {
+      console.warn("No supported audio format for recording.");
+      return null;
+    }
   }
   const recorder = new MediaRecorder(mediaStream, { mimeType: mime });
   const chunks = [];
