@@ -76,7 +76,7 @@
         phone: document.getElementById("phone").value,
         imageUrl: tgData.imageUrl
       };
-      const res = await fetch("https://api.example.com/auth/user/login", {
+      const res = await fetch("https://api.managelc.uz/auth/user/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
