@@ -94,24 +94,23 @@ function startRecognition() {
 }
 
 async function startTest(answerText, retries = 3) {
-  const body = {};
-  if (currentQuestion && answerText !== null) {
-    body.questionId = currentQuestion.id;
-    body.answer = answerText;
-  }
-
+  let url = API_START;
   const options = {
     method: "POST",
     headers: { "accept": "*/*", "Authorization": `Bearer ${token}` }
   };
-  if (Object.keys(body).length) {
-    options.headers["Content-Type"] = "application/json";
-    options.body = JSON.stringify(body);
+
+  if (currentQuestion && answerText !== null) {
+    const params = new URLSearchParams({
+      questionId: currentQuestion.id,
+      answer: answerText
+    });
+    url = `${API_START}?${params.toString()}`;
   }
 
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
-      const r = await fetch(API_START, options);
+      const r = await fetch(url, options);
       const res = await r.json();
       if (!res || !res.success) throw new Error("Invalid response");
       if (!res.data || res.data.totalQuestions !== undefined || res.data.percentage !== undefined) {
