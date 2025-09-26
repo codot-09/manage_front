@@ -148,7 +148,6 @@ function showQuestion(q) {
   partialTranscript = "";
   const thinkSeconds = Number(q.timeToThink || 5);
   const speakSeconds = Number(q.timeToComplete || 30);
-  // Start reading the question aloud, then proceed to timers
   readQuestionAloud(q.question, thinkSeconds, speakSeconds);
 }
 
@@ -156,23 +155,19 @@ async function readQuestionAloud(questionText, thinkSeconds, speakSeconds) {
   return new Promise((resolve) => {
     const utterance = new SpeechSynthesisUtterance(questionText || "No question text available");
     utterance.lang = "en-US";
-    utterance.rate = 0.7; // Slower speech rate (0.7 is slower than normal 1.0)
-    utterance.volume = 1.0; // Full volume
-    utterance.pitch = 1.0; // Normal pitch
-
+    utterance.rate = 0.7;
+    utterance.volume = 1.0;
+    utterance.pitch = 1.0;
 
     utterance.onend = () => {
       startThinkThenSpeak(thinkSeconds, speakSeconds).then(resolve);
     };
 
-    // Handle errors in speech synthesis
     utterance.onerror = (e) => {
       console.error("SpeechSynthesis error:", e);
-      // Proceed to timers even if speech fails
       startThinkThenSpeak(thinkSeconds, speakSeconds).then(resolve);
     };
 
-    // Start speaking
     window.speechSynthesis.speak(utterance);
   });
 }
@@ -180,8 +175,7 @@ async function readQuestionAloud(questionText, thinkSeconds, speakSeconds) {
 async function startThinkThenSpeak(thinkSeconds, speakSeconds) {
   liveTranscriptEl.style.display = "none";
   await runTimer(thinkSeconds, false);
-  liveTranscriptEl.style.display = "block";
-  liveTranscriptEl.textContent = "";
+  // Do not show liveTranscriptEl during speaking phase
   const recorder = startRecordingForQuestion(currentQuestion.id);
   partialTranscript = "";
   await runTimer(speakSeconds, true);
@@ -230,7 +224,13 @@ function runTimer(seconds, isSpeak) {
 }
 
 function setTimerNumber(n) {
-  timerNumberEl.textContent = String(n).padStart(2, "0");
+  if (n > 60) {
+    const minutes = Math.floor(n / 60);
+    const seconds = n % 60;
+    timerNumberEl.textContent = `${minutes}:${String(seconds).padStart(2, "0")}`;
+  } else {
+    timerNumberEl.textContent = String(n).padStart(2, "0");
+  }
 }
 
 function startRecordingForQuestion(questionId) {
