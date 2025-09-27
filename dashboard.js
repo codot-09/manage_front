@@ -45,7 +45,7 @@ document.addEventListener("DOMContentLoaded", () => {
     .then(res => {
       if (res.success) {
         userLevel.textContent = res.data.status;
-        userPercentage.textContent = res.data.percentage + "%";
+        userPercentage.textContent = res.data.percentage;
       }
     });
 
